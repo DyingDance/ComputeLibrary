@@ -28,10 +28,13 @@
 #include "arm_compute/core/NEON/kernels/NEFillBorderKernel.h"
 #include "arm_compute/core/Types.h"
 #include "arm_compute/runtime/IFunction.h"
+#include "arm_compute/runtime/IMemoryManager.h"
+#include "arm_compute/runtime/MemoryGroup.h"
 #include "arm_compute/runtime/NEON/INESimpleFunction.h"
 #include "arm_compute/runtime/Tensor.h"
 
 #include <cstdint>
+#include <memory>
 
 namespace arm_compute
 {
@@ -49,7 +52,7 @@ public:
     /** Initialize the function's source, destination, conv and border_mode.
      *
      * @param[in,out] input                 Source tensor. Data type supported: U8. (Written to only for @p border_mode != UNDEFINED)
-     * @param[out]    output                Destination tensor, Data types supported: U8 or S16.
+     * @param[out]    output                Destination tensor, Data types supported: U8/S16.
      * @param[in]     conv                  Matrix_size x matrix_size S16 coefficients structured as a row-major 2D array in a linear buffer.
      * @param[in]     scale                 Scale of the convolution matrix. If 0 is passed, it will be set to the sum of the coefficients of the convolution or 1 if they add up to 0.
      * @param[in]     border_mode           Strategy to use for borders.
@@ -70,7 +73,7 @@ class NEConvolutionSquare : public IFunction
 {
 public:
     /** Default constructor */
-    NEConvolutionSquare();
+    NEConvolutionSquare(std::shared_ptr<IMemoryManager> memory_manager = nullptr);
     /** Initialize the function's source, destination, conv and border_mode.
      *
      * @param[in,out] input                 Source tensor. Data type supported: U8. (Written to only for @p border_mode != UNDEFINED)
@@ -86,6 +89,7 @@ public:
     void run() override;
 
 private:
+    MemoryGroup                                   _memory_group;   /**< Function memory group */
     Tensor                                        _tmp;            /**< temporary buffer for output of horizontal pass */
     bool                                          _is_separable;   /**< true if the convolution can be separated */
     NESeparableConvolutionHorKernel<matrix_size>  _kernel_hor;     /**< kernel for horizontal pass of separated convolution */

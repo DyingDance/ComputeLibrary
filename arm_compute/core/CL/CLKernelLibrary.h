@@ -174,6 +174,17 @@ public:
     {
         _kernel_path = kernel_path;
     };
+    /** Gets the path that the kernels reside in.
+     */
+    std::string get_kernel_path()
+    {
+        return _kernel_path;
+    };
+    /** Gets the source of the selected program
+      *
+      * @param[in] program_name Program name.
+     */
+    std::string get_program_source(const std::string &program_name);
     /** Sets the CL context used to create programs.
      *
      * @note Setting the context also resets the device to the
@@ -195,7 +206,7 @@ public:
         {
             _device = cl_devices[0];
         }
-    };
+    }
     /** Sets the CL device for which the programs are created.
      *
      * @param[in] device A CL device.
@@ -203,7 +214,7 @@ public:
     void set_device(cl::Device device)
     {
         _device = std::move(device);
-    };
+    }
     /** Creates a kernel from the kernel library.
      *
      * @param[in] kernel_name       Kernel name.
@@ -220,6 +231,14 @@ public:
      *
      */
     void load_binary();
+    /** Find the maximum number of local work items in a workgroup can be supported for the kernel.
+     *
+     */
+    size_t max_local_workgroup_size(const cl::Kernel &kernel) const;
+    /** Return the default NDRange for the device.
+     *
+     */
+    cl::NDRange default_ndrange() const;
 
 private:
     /** Load program and its dependencies.
